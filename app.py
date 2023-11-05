@@ -45,8 +45,7 @@ class Poop(Resource):
         except mysql.connector.Error as err:
             return error_response(str(err), 500)
         finally:
-            cursor.close()
-            close_db_connection(connection)
+            close_db_connection(connection, cursor)
         return result or {}, 200
 
     # Insert a new poop
@@ -64,8 +63,7 @@ class Poop(Resource):
         except mysql.connector.Error as err:
             return error_response(str(err), 500)
         finally:
-            cursor.close()
-            close_db_connection(connection)
+            close_db_connection(connection, cursor)
         return "Poop data inserted successfully", 201
 
 class PoopList(Resource):
@@ -81,8 +79,7 @@ class PoopList(Resource):
         except mysql.connector.Error as err:
             return error_response(str(err), 500)
         finally:
-            cursor.close()
-            close_db_connection(connection)
+            close_db_connection(connection, cursor)
         return result or {}, 200
 
 ## ####################################################
@@ -99,7 +96,8 @@ def get_db_connection():
                                         host=host,
                                         database=database)
 
-def close_db_connection(connection):
+def close_db_connection(connection, cursor):
+    cursor.close()
     connection.close()
 
 def error_response(message, status_code):
