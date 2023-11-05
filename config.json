@@ -1,0 +1,14 @@
+{
+    "local": {
+        "user": "root",
+        "password": "admin",
+        "host": "127.0.0.1",
+        "database": "poop_tracker"
+    },
+    "pythonanywhere": {
+        "user": "pfistdo",
+        "password": "CatsDoP00p",
+        "host": "pfistdo.mysql.pythonanywhere-services.com",
+        "database": "pfistdo$poop_tracker"
+    }
+}
