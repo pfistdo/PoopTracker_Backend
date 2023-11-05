@@ -1,9 +1,8 @@
+import json
+import socket
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 import mysql.connector
-import json
-import socket
-import os
 
 app = Flask(__name__)
 api = Api(app)
@@ -29,59 +28,62 @@ password = db_config["password"]
 host = db_config["host"]
 database = db_config["database"]
 
+
 ## ####################################################
 ## Resources
 ## ####################################################
 class Poop(Resource):
     # Get a single poop
     def get(self, poop_id):
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
         try:
-            with mysql.connector.connect(user=user, password=password,
-                                        host=host,
-                                        database=database) as cnx:
-                with cnx.cursor(dictionary=True) as cursor:
-                    query = ("SELECT * FROM poop WHERE ID_poop = %s")
-                    cursor.execute(query, (poop_id,))
-                    result = cursor.fetchone()
+            query = ("SELECT * FROM poop WHERE ID_poop = %s")
+            cursor.execute(query, (poop_id,))
+            result = cursor.fetchone()
         except mysql.connector.Error as err:
-            print("Something went wrong: {}".format(err))
-            return "An error occurred while processing the request", 500
-        return result, 200  # The cursor will be automatically closed here
+            return error_response(str(err), 500)
+        finally:
+            cursor.close()
+            close_db_connection(connection)
+        return result or {}, 200
 
     # Insert a new poop
     def post(self):
-        try:
-            parser = reqparse.RequestParser()
-            parser.add_argument('weight')
-            data = parser.parse_args()
-            with mysql.connector.connect(user=user, password=password,
-                                        host=host,
-                                        database=database) as cnx:
-                with cnx.cursor() as cursor:
-                    query = "INSERT INTO poop (weight) VALUE (%s);"
-                    cursor.execute(query, (data['weight'],))
-                    cnx.commit()
-        except mysql.connector.Error as err:
-            print("Something went wrong: {}".format(err))
-            return "An error occurred while processing the request", 500
-        return "Poop data inserted successfully", 201  # The cursor will be automatically closed here
+        connection = get_db_connection()
+        cursor = connection.cursor()
 
+        parser = reqparse.RequestParser()
+        parser.add_argument('weight')
+        data = parser.parse_args()
+        try:
+            query = "INSERT INTO poop (weight) VALUE (%s);"
+            cursor.execute(query, (data['weight'],))
+            connection.commit()
+        except mysql.connector.Error as err:
+            return error_response(str(err), 500)
+        finally:
+            cursor.close()
+            close_db_connection(connection)
+        return "Poop data inserted successfully", 201
 
 class PoopList(Resource):
     # Get all poops
     def get(self):
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
         try:
-            with mysql.connector.connect(user=user, password=password,
-                                        host=host,
-                                        database=database) as cnx:
-                with cnx.cursor(dictionary=True) as cursor:
-                    query = ("SELECT * FROM poop;")
-                    cursor.execute(query)
-                    result = cursor.fetchall()
+            query = ("SELECT * FROM poop;")
+            cursor.execute(query)
+            result = cursor.fetchall()
         except mysql.connector.Error as err:
-            print("Something went wrong: {}".format(err))
-            return "An error occurred while processing the request", 500
-        return result, 200
+            return error_response(str(err), 500)
+        finally:
+            cursor.close()
+            close_db_connection(connection)
+        return result or {}, 200
 
 ## ####################################################
 ## Endpoints
@@ -89,6 +91,19 @@ class PoopList(Resource):
 api.add_resource(Poop, '/poop/<poop_id>', '/poop', '/poop/')
 api.add_resource(PoopList, '/poops', '/poops/')
 
+## ####################################################
+## Helpers
+## ####################################################
+def get_db_connection():
+    return mysql.connector.connect(user=user, password=password,
+                                        host=host,
+                                        database=database)
+
+def close_db_connection(connection):
+    connection.close()
+
+def error_response(message, status_code):
+    return {'error': message}, status_code
 
 ## ####################################################
 ## Main
