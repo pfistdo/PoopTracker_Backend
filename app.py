@@ -2,10 +2,14 @@ import json
 import socket
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
+from flask_socketio import SocketIO, emit
+from flask_cors import CORS
 import mysql.connector
 
 app = Flask(__name__)
 api = Api(app)
+# Enable CORS for all routes
+CORS(app)
 
 # Determine the environment (local or pythonanywhere)
 if "PC22" in socket.gethostname():
@@ -28,6 +32,11 @@ password = db_config["password"]
 host = db_config["host"]
 database = db_config["database"]
 
+socketio = SocketIO(app, cors_allowed_origins='*')
+
+#This methode sends the data via WebSocket to the connected frontend
+def sendData(value):
+    socketio.emit('sensor_data', {'data': value})
 
 ## ####################################################
 ## Resources
@@ -64,6 +73,7 @@ class Poop(Resource):
             return error_response(str(err), 500)
         finally:
             close_db_connection(connection, cursor)
+        sendData(data['weight'])
         return "Poop data inserted successfully", 201
 
 class PoopList(Resource):
@@ -107,4 +117,4 @@ def error_response(message, status_code):
 ## Main
 ## ####################################################
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, port=5000)
