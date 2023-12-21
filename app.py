@@ -51,6 +51,7 @@ class Poop(Resource):
             query = ("SELECT * FROM poop WHERE ID_poop = %s")
             cursor.execute(query, (poop_id,))
             result = cursor.fetchone()
+            result["timestamp"] = result["timestamp"].__str__() # Convert the datetime object to a string
         except mysql.connector.Error as err:
             return error_response(str(err), 500)
         finally:
@@ -64,16 +65,19 @@ class Poop(Resource):
 
         parser = reqparse.RequestParser()
         parser.add_argument('weight')
+        parser.add_argument('air_quality')
+        parser.add_argument('food_ID')
         data = parser.parse_args()
+
         try:
-            query = "INSERT INTO poop (weight) VALUE (%s);"
-            cursor.execute(query, (data['weight'],))
+            query = "INSERT INTO poop (weight, air_quality, food_ID) VALUE (%s, %s, %s);"
+            cursor.execute(query, (data['weight'], data['air_quality'], data['food_ID'],))
             connection.commit()
         except mysql.connector.Error as err:
             return error_response(str(err), 500)
         finally:
             close_db_connection(connection, cursor)
-        sendData(data['weight'])
+        # sendData(data['weight'])
         return "Poop data inserted successfully", 201
 
 class PoopList(Resource):
@@ -86,6 +90,8 @@ class PoopList(Resource):
             query = ("SELECT * FROM poop;")
             cursor.execute(query)
             result = cursor.fetchall()
+            for row in result:
+                row["timestamp"] = row["timestamp"].__str__() # Convert the datetime object to a string
         except mysql.connector.Error as err:
             return error_response(str(err), 500)
         finally:

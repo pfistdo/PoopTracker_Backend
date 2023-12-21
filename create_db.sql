@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS `poop_tracker`.`food` (
   `ash` INT NULL,
   `fibres` INT NULL,
   `moisture` INT NULL,
-  `foodcol` VARCHAR(45) NULL,
   PRIMARY KEY (`ID_food`))
 ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `poop_tracker`.`poop` (
