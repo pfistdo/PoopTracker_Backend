@@ -8,6 +8,7 @@ app = FastAPI()
 
 # Entity classes
 class Food(BaseModel):
+    ID_food: int = None
     name: str
     meat: str
     protein: int = None
@@ -15,12 +16,14 @@ class Food(BaseModel):
     ash: int = None
     fibres: int = None
     moisture: int = None
+    timestamp: datetime = None
 
 class Poop(BaseModel):
     ID_poop: int = None
     weight: int
     air_quality: int
     food_ID: int = None
+    timestamp: datetime = None
 
 ## ####################################################
 ## Endpoints
