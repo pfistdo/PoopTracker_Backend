@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from database import get_mysql_connection
-# import MySQLdb as db
 
 app = FastAPI()
 
@@ -92,3 +92,7 @@ def create_poop(poop: Poop):
     cursor.close()
     cnx.close()
     return poop
+
+@app.get("/")
+async def docs_redirect():
+    return RedirectResponse(url='/docs')
