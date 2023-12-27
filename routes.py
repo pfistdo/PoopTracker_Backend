@@ -93,6 +93,7 @@ def create_poop(poop: Poop):
     cnx.close()
     return poop
 
+# Reroute to the docs
 @app.get("/")
 async def docs_redirect():
     return RedirectResponse(url='/docs')
