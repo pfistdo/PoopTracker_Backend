@@ -1,4 +1,5 @@
-CREATE TABLE IF NOT EXISTS `pfistdo$poop_tracker`.`food` (
+use poop_tracker;
+CREATE TABLE IF NOT EXISTS `food` (
   `ID_food` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `meat` VARCHAR(45) NOT NULL,
@@ -13,7 +14,7 @@ ENGINE = InnoDB
 AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
-CREATE TABLE IF NOT EXISTS `pfistdo$poop_tracker`.`poop` (
+CREATE TABLE IF NOT EXISTS `poop` (
   `ID_poop` INT NOT NULL AUTO_INCREMENT,
   `weight` INT NOT NULL,
   `air_quality` INT NOT NULL,
@@ -23,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `pfistdo$poop_tracker`.`poop` (
   INDEX `fk_poop_food_idx` (`food_ID` ASC) VISIBLE,
   CONSTRAINT `fk_poop_food`
     FOREIGN KEY (`food_ID`)
-    REFERENCES `pfistdo$poop_tracker`.`food` (`ID_food`))
+    REFERENCES `food` (`ID_food`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 30
 DEFAULT CHARACTER SET = utf8mb4
