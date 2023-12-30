@@ -5,9 +5,10 @@ from mysql.connector import errorcode
 
 def get_mysql_connection():
     # Determine the environment (local or pythonanywhere)
+    config_file_path = "config.json"
     if "PC24" in socket.gethostname():
         environment = "local"
-        config_file_path = "config.json"
+        # config_file_path = "config.json"
     else:
         environment = "amazon"
         # config_file_path = "/home/pfistdo/mysite/config.json"
