@@ -5,10 +5,10 @@
         "host": "127.0.0.1",
         "database": "poop_tracker"
     },
-    "pythonanywhere": {
-        "user": "pfistdo",
-        "password": "CatsDoP00p",
-        "host": "pfistdo.mysql.pythonanywhere-services.com",
-        "database": "pfistdo$poop_tracker"
+    "amazon": {
+        "user": "admin",
+        "password": "adminpass",
+        "host": "poop-tracker.clw46cy24950.us-east-1.rds.amazonaws.com",
+        "database": "poop_tracker"
     }
 }
