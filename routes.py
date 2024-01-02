@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from database import get_mysql_connection
+from typing import Optional
 
 app = FastAPI()
 
@@ -67,15 +68,24 @@ class Telephone_Number(BaseModel):
 
 # Fetch all foods
 @app.get("/foods/", response_model=list[Food])
-def get_all_foods():
-    cnx = get_mysql_connection()
-    cursor = cnx.cursor(dictionary=True)
-    query = "SELECT * FROM food"
-    cursor.execute(query)
-    foods = cursor.fetchall()
-    cursor.close()
-    cnx.close()
-    return foods
+@app.get("/foods/{count}", response_model=list[Food])
+def get_all_foods(count: Optional[int] = None):
+    try:
+        cnx = get_mysql_connection()
+        cursor = cnx.cursor(dictionary=True)
+
+        if count is None:
+            query = "SELECT * FROM food"
+        else:
+            query = f"SELECT * FROM food ORDER BY ID_food DESC LIMIT {count}"
+
+        cursor.execute(query)
+        foods = cursor.fetchall()
+        cursor.close()
+        cnx.close()
+        return foods
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Insert a new food
 @app.post("/foods/", response_model=Food)
@@ -92,15 +102,24 @@ def create_food(food: Food):
 
 # Fetch all poops
 @app.get("/poops/", response_model=list[Poop])
-def get_all_poops():
-    cnx = get_mysql_connection()
-    cursor = cnx.cursor(dictionary=True)
-    query = "SELECT * FROM poop"
-    cursor.execute(query)
-    poops = cursor.fetchall()
-    cursor.close()
-    cnx.close()
-    return poops
+@app.get("/poops/{count}", response_model=list[Poop])
+def get_all_poops(count: Optional[int] = None):
+    try:
+        cnx = get_mysql_connection()
+        cursor = cnx.cursor(dictionary=True)
+
+        if count is None:
+            query = "SELECT * FROM poop"
+        else:
+            query = f"SELECT * FROM poop ORDER BY ID_poop DESC LIMIT {count}"
+
+        cursor.execute(query)
+        poops = cursor.fetchall()
+        cursor.close()
+        cnx.close()
+        return poops
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Insert a new poop
 @app.post("/poops/", response_model=Poop)
@@ -131,11 +150,17 @@ def create_poop(poop: Poop):
 
 # Fetch all cats
 @app.get("/cats/", response_model=list[Cat])
-def get_all_cats():
+@app.get("/cats/{count}", response_model=list[Cat])
+def get_all_cats(count: Optional[int] = None):
     try:
         cnx = get_mysql_connection()
         cursor = cnx.cursor(dictionary=True)
-        query = "SELECT * FROM cat"
+
+        if count is None:
+            query = "SELECT * FROM cat"
+        else:
+            query = f"SELECT * FROM cat ORDER BY ID_cat DESC LIMIT {count}"
+
         cursor.execute(query)
         cats = cursor.fetchall()
         cursor.close()
@@ -165,11 +190,17 @@ def insert_cat(cat: Cat):
     
 # Fetch all air qualities
 @app.get("/air_qualities/", response_model=list[Air_Quality])
-def get_all_air_qualities():
+@app.get("/air_qualities/{count}", response_model=list[Air_Quality])
+def get_all_air_qualities(count: Optional[int] = None):
     try:
         cnx = get_mysql_connection()
         cursor = cnx.cursor(dictionary=True)
-        query = "SELECT * FROM air_quality"
+
+        if count is None:
+            query = "SELECT * FROM air_quality"
+        else:
+            query = f"SELECT * FROM air_quality ORDER BY ID_air_quality DESC LIMIT {count}"
+
         cursor.execute(query)
         air_qualities = cursor.fetchall()
         cursor.close()
@@ -199,11 +230,17 @@ def insert_air_quality(air_quality: Air_Quality):
 
 # Fetch all telephone numbers
 @app.get("/telephone_numbers/", response_model=list[Telephone_Number])
-def get_all_telephone_numbers():
+@app.get("/telephone_numbers/{count}", response_model=list[Telephone_Number])
+def get_all_telephone_numbers(count: Optional[int] = None):
     try:
         cnx = get_mysql_connection()
         cursor = cnx.cursor(dictionary=True)
-        query = "SELECT * FROM telephone_number"
+
+        if count is None:
+            query = "SELECT * FROM telephone_number"
+        else:
+            query = f"SELECT * FROM telephone_number ORDER BY ID_telephone_number DESC LIMIT {count}"
+
         cursor.execute(query)
         telephone_numbers = cursor.fetchall()
         cursor.close()
@@ -233,19 +270,34 @@ def insert_telephone_number(telnr: Telephone_Number):
     
 # Fetch all feedings
 @app.get("/feedings/", response_model=list[FeedingWithDetails])
-def get_all_feedings_with_details():
+@app.get("/feedings/{count}", response_model=list[FeedingWithDetails])
+def get_all_feedings_with_details(count: Optional[int] = None):
     try:
         cnx = get_mysql_connection()
         cursor = cnx.cursor(dictionary=True)
-        query = """
-            SELECT feeding.ID_feeding, feeding.timestamp, food.ID_food AS food_ID, food.name AS food_name, 
-            food.meat AS food_meat, food.protein AS food_protein, food.fat AS food_fat, food.ash AS food_ash, 
-            food.fibres AS food_fibres, food.moisture AS food_moisture, food.timestamp as food_timestamp, 
-            cat.ID_cat AS cat_ID, cat.name AS cat_name, cat.weight AS cat_weight, cat.timestamp as cat_timestamp
-            FROM feeding
-            INNER JOIN food ON feeding.food_ID = food.ID_food
-            INNER JOIN cat ON feeding.cat_ID = cat.ID_cat
-        """
+
+        if count is None:
+            query = """
+                SELECT feeding.ID_feeding, feeding.timestamp, food.ID_food AS food_ID, food.name AS food_name, 
+                food.meat AS food_meat, food.protein AS food_protein, food.fat AS food_fat, food.ash AS food_ash, 
+                food.fibres AS food_fibres, food.moisture AS food_moisture, food.timestamp as food_timestamp, 
+                cat.ID_cat AS cat_ID, cat.name AS cat_name, cat.weight AS cat_weight, cat.timestamp as cat_timestamp
+                FROM feeding
+                INNER JOIN food ON feeding.food_ID = food.ID_food
+                INNER JOIN cat ON feeding.cat_ID = cat.ID_cat
+            """
+        else:
+            query = f"""
+                SELECT feeding.ID_feeding, feeding.timestamp, food.ID_food AS food_ID, food.name AS food_name, 
+                food.meat AS food_meat, food.protein AS food_protein, food.fat AS food_fat, food.ash AS food_ash, 
+                food.fibres AS food_fibres, food.moisture AS food_moisture, food.timestamp as food_timestamp, 
+                cat.ID_cat AS cat_ID, cat.name AS cat_name, cat.weight AS cat_weight, cat.timestamp as cat_timestamp
+                FROM feeding
+                INNER JOIN food ON feeding.food_ID = food.ID_food
+                INNER JOIN cat ON feeding.cat_ID = cat.ID_cat
+                ORDER BY ID_feeding DESC 
+                LIMIT {count}
+            """
         cursor.execute(query)
         feedings_with_details = cursor.fetchall()
         cursor.close()
