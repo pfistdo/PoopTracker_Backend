@@ -1,3 +1,4 @@
+create database poop_tracker;
 use poop_tracker;
 CREATE TABLE IF NOT EXISTS `food` (
   `ID_food` INT NOT NULL AUTO_INCREMENT,

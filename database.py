@@ -4,20 +4,16 @@ import mysql.connector
 from mysql.connector import errorcode
 
 def get_mysql_connection():
-    # Determine the environment (local or pythonanywhere)
+    # Determine the environment (local or Heroku (Amazon))
     config_file_path = "config.json"
     if "PC24" in socket.gethostname():
         environment = "local"
-        # config_file_path = "config.json"
     else:
         environment = "amazon"
-        # config_file_path = "/home/pfistdo/mysite/config.json"
 
     # Load the configuration from the JSON file
     with open(config_file_path) as config_file:
         db_config = json.load(config_file)
-
-
     try:
         cnx = mysql.connector.connect(
             user=db_config.get(environment).get("user"),
