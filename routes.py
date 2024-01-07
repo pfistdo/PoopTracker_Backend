@@ -5,9 +5,7 @@ from pydantic import BaseModel
 from database import get_mysql_connection
 from typing import Optional
 
-from typing import Union
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -77,6 +75,12 @@ class Telephone_Number(BaseModel):
     ID_telephone_number: int = None
     name: str
     telnr: str
+
+class Weight(BaseModel):
+    ID_weight: int = None
+    weight: int
+    timestamp: datetime = None
+    cat_ID: int = None
 
 ## ####################################################
 ## Endpoints
@@ -369,6 +373,40 @@ def insert_feeding(feeding: Feeding):
         return feeding
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# Fetch all weights
+@app.get("/weights/", response_model=list[Weight])
+@app.get("/weights/{count}", response_model=list[Weight])
+def get_all_weights(count: Optional[int] = None):
+    try:
+        cnx = get_mysql_connection()
+        cursor = cnx.cursor(dictionary=True)
+
+        if count is None:
+            query = "SELECT * FROM weight"
+        else:
+            query = f"SELECT * FROM weight ORDER BY ID_weight DESC LIMIT {count}"
+
+        cursor.execute(query)
+        weights = cursor.fetchall()
+        cursor.close()
+        cnx.close()
+        return weights
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Insert a new weight
+@app.post("/weights/", response_model=Weight)
+def create_weight(weight: Weight):
+    cnx = get_mysql_connection()
+    cursor = cnx.cursor()
+    query = "INSERT INTO weight (weight, cat_ID) VALUES (%s, %s)"
+    cursor.execute(query, (weight.weight, weight.cat_ID))
+    cnx.commit()
+    weight.ID_weight = cursor.lastrowid
+    cursor.close()
+    cnx.close()
+    return weight
 
 # Reroute to the docs
 @app.get("/")
