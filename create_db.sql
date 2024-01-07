@@ -14,11 +14,34 @@ DROP TABLE IF EXISTS `cat` ;
 CREATE TABLE IF NOT EXISTS `cat` (
   `ID_cat` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
-  `weight` FLOAT NOT NULL,
-  `timestamp` TIMESTAMP(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `birthdate` DATE NOT NULL,
+  `gender` VARCHAR(45) NOT NULL,
+  `color` VARCHAR(45) NOT NULL,
+  `chipped` TINYINT NOT NULL,
   PRIMARY KEY (`ID_cat`))
-ENGINE = InnoDB;
+ENGINE = InnoDB
+AUTO_INCREMENT = 4
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
+-- -----------------------------------------------------
+-- Table `weight`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `weight` ;
+
+CREATE TABLE IF NOT EXISTS `weight` (
+  `ID_weight` INT NOT NULL,
+  `weight` INT NOT NULL,
+  `timestamp` TIMESTAMP(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `cat_ID` INT NOT NULL,
+  PRIMARY KEY (`ID_weight`, `cat_ID`),
+  INDEX `fk_weight_cat_idx` (`cat_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_weight_cat`
+    FOREIGN KEY (`cat_ID`)
+    REFERENCES `cat` (`ID_cat`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `air_quality`
@@ -64,23 +87,22 @@ DROP TABLE IF EXISTS `feeding` ;
 
 CREATE TABLE IF NOT EXISTS `feeding` (
   `ID_feeding` INT NOT NULL AUTO_INCREMENT,
-  `timestamp` TIMESTAMP(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `timestamp` TIMESTAMP(6) NULL,
   `food_ID` INT NOT NULL,
   `cat_ID` INT NOT NULL,
   PRIMARY KEY (`ID_feeding`, `food_ID`, `cat_ID`),
   INDEX `fk_feeding_food1_idx` (`food_ID` ASC) VISIBLE,
   INDEX `fk_feeding_cat2_idx` (`cat_ID` ASC) VISIBLE,
-  CONSTRAINT `fk_feeding_food1`
-    FOREIGN KEY (`food_ID`)
-    REFERENCES `food` (`ID_food`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_feeding_cat2`
     FOREIGN KEY (`cat_ID`)
-    REFERENCES `cat` (`ID_cat`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `cat` (`ID_cat`),
+  CONSTRAINT `fk_feeding_food1`
+    FOREIGN KEY (`food_ID`)
+    REFERENCES `food` (`ID_food`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 6
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
 
 -- -----------------------------------------------------
