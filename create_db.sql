@@ -30,7 +30,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 DROP TABLE IF EXISTS `weight` ;
 
 CREATE TABLE IF NOT EXISTS `weight` (
-  `ID_weight` INT NOT NULL,
+  `ID_weight` INT NOT NULL AUTO_INCREMENT,
   `weight` INT NOT NULL,
   `timestamp` TIMESTAMP(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
   `cat_ID` INT NOT NULL,
