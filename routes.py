@@ -40,7 +40,7 @@ class Cat(BaseModel):
 
 class Feeding(BaseModel):
     ID_feeding: int = None
-    timestamp: datetime = None
+    timestamp: datetime
     food_ID: int = None
     cat_ID: int = None
 
@@ -362,10 +362,10 @@ def insert_feeding(feeding: Feeding):
         cnx = get_mysql_connection()
         cursor = cnx.cursor()
         query = """
-            INSERT INTO feeding (food_ID, cat_ID)
-            VALUES (%s, %s)
+            INSERT INTO feeding (food_ID, cat_ID, timestamp)
+            VALUES (%s, %s, %s)
         """
-        values = (feeding.food_ID, feeding.cat_ID)
+        values = (feeding.food_ID, feeding.cat_ID, feeding.timestamp)
         cursor.execute(query, values)
         cnx.commit()
         cursor.close()
