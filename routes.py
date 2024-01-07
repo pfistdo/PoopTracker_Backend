@@ -35,8 +35,10 @@ class Food(BaseModel):
 class Cat(BaseModel):
     ID_cat: int = None
     name: str
-    weight: float
-    timestamp: datetime = None
+    birthdate: date
+    gender: str
+    color: str
+    chipped: bool
 
 class Feeding(BaseModel):
     ID_feeding: int = None
@@ -55,14 +57,6 @@ class Poop(BaseModel):
     weight: int
     timestamp: datetime = None
     feeding_ID: int = None
-
-class Cat(BaseModel):
-    ID_cat: int = None
-    name: str
-    birthdate: date
-    gender: str
-    color: str
-    chipped: bool
 
 class Air_Quality(BaseModel):
     ID_air_quality: int = None
@@ -301,7 +295,8 @@ def get_all_feedings_with_details(count: Optional[int] = None):
                 SELECT feeding.ID_feeding, feeding.timestamp, food.ID_food AS food_ID, food.name AS food_name, 
                 food.meat AS food_meat, food.protein AS food_protein, food.fat AS food_fat, food.ash AS food_ash, 
                 food.fibres AS food_fibres, food.moisture AS food_moisture, food.timestamp as food_timestamp, 
-                cat.ID_cat AS cat_ID, cat.name AS cat_name, cat.weight AS cat_weight, cat.timestamp as cat_timestamp
+                cat.ID_cat AS cat_ID, cat.name AS cat_name, cat.birthdate AS cat_birthdate, cat.gender as cat_gender, 
+                cat.color as cat_color, cat.chipped as cat_chipped
                 FROM feeding
                 INNER JOIN food ON feeding.food_ID = food.ID_food
                 INNER JOIN cat ON feeding.cat_ID = cat.ID_cat
@@ -311,7 +306,8 @@ def get_all_feedings_with_details(count: Optional[int] = None):
                 SELECT feeding.ID_feeding, feeding.timestamp, food.ID_food AS food_ID, food.name AS food_name, 
                 food.meat AS food_meat, food.protein AS food_protein, food.fat AS food_fat, food.ash AS food_ash, 
                 food.fibres AS food_fibres, food.moisture AS food_moisture, food.timestamp as food_timestamp, 
-                cat.ID_cat AS cat_ID, cat.name AS cat_name, cat.weight AS cat_weight, cat.timestamp as cat_timestamp
+                cat.ID_cat AS cat_ID, cat.name AS cat_name, cat.birthdate AS cat_birthdate, cat.gender as cat_gender, 
+                cat.color as cat_color, cat.chipped as cat_chipped
                 FROM feeding
                 INNER JOIN food ON feeding.food_ID = food.ID_food
                 INNER JOIN cat ON feeding.cat_ID = cat.ID_cat
@@ -340,8 +336,10 @@ def get_all_feedings_with_details(count: Optional[int] = None):
             cat_data = {
                 "ID_cat": feeding_data["cat_ID"],
                 "name": feeding_data["cat_name"],
-                "weight": feeding_data["cat_weight"],
-                "timestamp": feeding_data["cat_timestamp"],
+                "birthdate": feeding_data["cat_birthdate"],
+                "gender": feeding_data["cat_gender"],
+                "color": feeding_data["cat_color"],
+                "chipped": feeding_data["cat_chipped"],
             }
             feeding_with_details = FeedingWithDetails(
                 ID_feeding=feeding_data["ID_feeding"],
