@@ -5,7 +5,22 @@ from pydantic import BaseModel
 from database import get_mysql_connection
 from typing import Optional
 
+from typing import Union
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+##############################
+#### Enable CORS 
+##############################
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Entity classes
 class Food(BaseModel):
@@ -60,7 +75,6 @@ class Telephone_Number(BaseModel):
     ID_telephone_number: int = None
     name: str
     telnr: str
-
 
 ## ####################################################
 ## Endpoints
