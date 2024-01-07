@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
@@ -61,8 +61,10 @@ class Poop(BaseModel):
 class Cat(BaseModel):
     ID_cat: int = None
     name: str
-    weight: float
-    timestamp: datetime = None
+    birthdate: date
+    gender: str
+    color: str
+    chipped: bool
 
 class Air_Quality(BaseModel):
     ID_air_quality: int = None
@@ -190,10 +192,10 @@ def insert_cat(cat: Cat):
         cnx = get_mysql_connection()
         cursor = cnx.cursor()
         query = """
-            INSERT INTO cat (name, weight)
-            VALUES (%s, %s)
+            INSERT INTO cat (name, birthdate, gender, color, chipped)
+            VALUES (%s, %s, %s, %s, %s)
         """
-        values = (cat.name, cat.weight)
+        values = (cat.name, cat.birthdate, cat.gender, cat.color, cat.chipped)
         cursor.execute(query, values)
         cnx.commit()
         cursor.close()
