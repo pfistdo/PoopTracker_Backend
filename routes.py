@@ -152,8 +152,8 @@ def create_poop(poop: Poop):
     if result:
         feeding_ID = result[0]
     else:
-        print("No feeding found in the last 12 hours. Using 1 as feeding_ID.")
-        feeding_ID = 1
+        print("No feeding found in the last 12 hours. Using 9 as feeding_ID.")
+        feeding_ID = 9
     query = "INSERT INTO poop (weight, feeding_ID) VALUES (%s, %s)"
     cursor.execute(query, (poop.weight, feeding_ID))
     cnx.commit()
