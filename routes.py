@@ -196,7 +196,7 @@ async def create_poop(poop: Poop):
     cursor.close()
     cnx.close()
 
-    notify_clients("Hallo Rico")
+    await notify_clients("Hallo Rico")
     return poop
 
 # Fetch all cats
