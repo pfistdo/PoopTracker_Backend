@@ -5,7 +5,7 @@ from mysql.connector import errorcode
 
 def get_mysql_connection():
     # Determine the environment (local or Heroku (Amazon))
-    config_file_path = "config.json"
+    config_file_path = "config/config.json"
     if "PC24" in socket.gethostname():
         environment = "local"
     else:
