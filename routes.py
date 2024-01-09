@@ -42,6 +42,7 @@ manager = ConnectionManager()
 
 # Define an async function to notify clients
 async def notify_clients(message: str):
+    print(f"Trying to send data via websocket: {message}")
     await manager.broadcast(message)
 
 @app.websocket("/ws/{client_id}")
@@ -201,7 +202,7 @@ async def create_poop(poop: Poop):
     poop_dict = dict(poop)
     poop_json = json.dumps(poop_dict)
     await notify_clients(poop_json)
-    
+
     return poop
 
 # Fetch all cats
