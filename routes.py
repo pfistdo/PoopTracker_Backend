@@ -207,6 +207,7 @@ async def create_poop(poop: Poop):
     # Notify WebSocket clients with the JSON data
     poop_dict = dict(poop)
     poop_dict["timestamp"] = formatted_timestamp
+    poop_dict["type"] = "poop" # to identify payload in frontend
     poop_json = json.dumps(poop_dict)
     await notify_clients(poop_json)
 
