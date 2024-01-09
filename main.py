@@ -1,4 +1,3 @@
-import os
 from routes import app
 import uvicorn
 

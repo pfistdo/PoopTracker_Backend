@@ -1,13 +1,14 @@
-from datetime import datetime, timedelta, date
+from datetime import date, datetime, timedelta
+import json
+from typing import Optional
+
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
-from database import get_mysql_connection
-from typing import Optional
-import json
 
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from database import get_mysql_connection
+
 
 app = FastAPI()
 ##############################
@@ -21,6 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+##############################
+#### Configure WebSocket
+##############################
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
@@ -57,7 +61,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
         manager.disconnect(websocket)
         await manager.broadcast(f"Client #{client_id} left the chat")
 
-# Entity classes
+## ####################################################
+## Entity classes
+## ####################################################
 class Food(BaseModel):
     ID_food: int = None
     name: str
