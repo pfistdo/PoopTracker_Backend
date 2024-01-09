@@ -191,6 +191,7 @@ def create_poop(poop: Poop):
     poop.ID_poop = cursor.lastrowid
     cursor.close()
     cnx.close()
+    manager.broadcast("Hallo Rico")
     return poop
 
 # Fetch all cats
