@@ -205,7 +205,6 @@ async def create_poop(poop: Poop):
 
     # Notify WebSocket clients with the JSON data
     poop_dict = dict(poop)
-    print(poop_dict)
     poop_json = json.dumps(poop_dict)
     await notify_clients(poop_json)
 
