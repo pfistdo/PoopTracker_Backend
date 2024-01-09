@@ -194,12 +194,18 @@ async def create_poop(poop: Poop):
     query = "INSERT INTO poop (weight, feeding_ID) VALUES (%s, %s)"
     cursor.execute(query, (poop.weight, feeding_ID))
     cnx.commit()
+
+    # Fetch the timestamp of the inserted poop and create Poop object
+    cursor.execute("SELECT timestamp FROM poop WHERE ID_poop = LAST_INSERT_ID()")
+    poop_timestamp = cursor.fetchone()[0]
+    poop.timestamp = poop_timestamp.isoformat() if poop_timestamp else None
     poop.ID_poop = cursor.lastrowid
     cursor.close()
     cnx.close()
 
     # Notify WebSocket clients with the JSON data
     poop_dict = dict(poop)
+    print(poop_dict)
     poop_json = json.dumps(poop_dict)
     await notify_clients(poop_json)
 
