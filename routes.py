@@ -308,7 +308,7 @@ async def insert_air_quality(air_quality: Air_Quality):
         air_quality_dict["type"] = "airQuality" # to identify payload in frontend
         air_quality_json = json.dumps(air_quality_dict)
         await notify_clients(air_quality_json)
-        
+
         return air_quality
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -479,6 +479,16 @@ def create_weight(weight: Weight):
         return weight
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+# Broadcast live weight via WebSocket
+@app.post("/liveWeights/", response_model=Weight)
+async def broadcast_weight(weight: Weight):
+        weight_dict = dict(weight)
+        # weight_dict["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        weight_dict["type"] = "liveWeight" # to identify payload in frontend
+        weight_json = json.dumps(weight_dict)
+        await notify_clients(weight_json)
+        return weight
 
 # Reroute to the docs
 @app.get("/")
