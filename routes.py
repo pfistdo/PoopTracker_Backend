@@ -141,15 +141,18 @@ def get_all_foods(count: Optional[int] = None):
 # Insert a new food
 @app.post("/foods/", response_model=Food)
 def create_food(food: Food):
-    cnx = get_mysql_connection()
-    cursor = cnx.cursor()
-    query = "INSERT INTO food (name, meat, protein, fat, ash, fibres, moisture) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    cursor.execute(query, (food.name, food.meat, food.protein, food.fat, food.ash, food.fibres, food.moisture))
-    cnx.commit()
-    food.ID_food = cursor.lastrowid
-    cursor.close()
-    cnx.close()
-    return food
+    try:
+        cnx = get_mysql_connection()
+        cursor = cnx.cursor()
+        query = "INSERT INTO food (name, meat, protein, fat, ash, fibres, moisture) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(query, (food.name, food.meat, food.protein, food.fat, food.ash, food.fibres, food.moisture))
+        cnx.commit()
+        food.ID_food = cursor.lastrowid
+        cursor.close()
+        cnx.close()
+        return food
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Fetch all poops
 @app.get("/poops/", response_model=list[Poop])
@@ -175,43 +178,46 @@ def get_all_poops(count: Optional[int] = None):
 # Insert a new poop
 @app.post("/poops/", response_model=Poop)
 async def create_poop(poop: Poop):
-    cnx = get_mysql_connection()
-    cursor = cnx.cursor()
+    try:
+        cnx = get_mysql_connection()
+        cursor = cnx.cursor()
 
-    # Get the timestamp 12 hours ago
-    timestamp_threshold = datetime.now() - timedelta(hours=12)
-    
-    # Query to get the last inserted food ID within the last 12 hours
-    select_feeding_query = "SELECT ID_feeding FROM feeding WHERE timestamp >= %s ORDER BY timestamp DESC LIMIT 1"
-    cursor.execute(select_feeding_query, (timestamp_threshold,))
-    result = cursor.fetchone()
+        # Get the timestamp 12 hours ago
+        timestamp_threshold = datetime.now() - timedelta(hours=12)
+        
+        # Query to get the last inserted food ID within the last 12 hours
+        select_feeding_query = "SELECT ID_feeding FROM feeding WHERE timestamp >= %s ORDER BY timestamp DESC LIMIT 1"
+        cursor.execute(select_feeding_query, (timestamp_threshold,))
+        result = cursor.fetchone()
 
-    if result:
-        feeding_ID = result[0]
-    else:
-        print("No feeding found in the last 12 hours. Using 9 as feeding_ID.")
-        feeding_ID = 9
-    query = "INSERT INTO poop (weight, feeding_ID) VALUES (%s, %s)"
-    cursor.execute(query, (poop.weight, feeding_ID))
-    cnx.commit()
+        if result:
+            feeding_ID = result[0]
+        else:
+            print("No feeding found in the last 12 hours. Using 9 as feeding_ID.")
+            feeding_ID = 9
+        query = "INSERT INTO poop (weight, feeding_ID) VALUES (%s, %s)"
+        cursor.execute(query, (poop.weight, feeding_ID))
+        cnx.commit()
 
-    # Fetch the timestamp of the inserted poop and create Poop object
-    cursor.execute("SELECT timestamp FROM poop WHERE ID_poop = LAST_INSERT_ID()")
-    poop_timestamp = cursor.fetchone()[0]
-    formatted_timestamp = poop_timestamp.strftime("%Y-%m-%dT%H:%M:%S") # format timestamp for WebSocket
-    poop.timestamp = poop_timestamp
-    poop.ID_poop = cursor.lastrowid
-    cursor.close()
-    cnx.close()
+        # Fetch the timestamp of the inserted poop and create Poop object
+        cursor.execute("SELECT timestamp FROM poop WHERE ID_poop = LAST_INSERT_ID()")
+        poop_timestamp = cursor.fetchone()[0]
+        formatted_timestamp = poop_timestamp.strftime("%Y-%m-%dT%H:%M:%S") # format timestamp for WebSocket
+        poop.timestamp = poop_timestamp
+        poop.ID_poop = cursor.lastrowid
+        cursor.close()
+        cnx.close()
 
-    # Notify WebSocket clients with the JSON data
-    poop_dict = dict(poop)
-    poop_dict["timestamp"] = formatted_timestamp
-    poop_dict["type"] = "poop" # to identify payload in frontend
-    poop_json = json.dumps(poop_dict)
-    await notify_clients(poop_json)
+        # Notify WebSocket clients with the JSON data
+        poop_dict = dict(poop)
+        poop_dict["timestamp"] = formatted_timestamp
+        poop_dict["type"] = "poop" # to identify payload in frontend
+        poop_json = json.dumps(poop_dict)
+        await notify_clients(poop_json)
 
-    return poop
+        return poop
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Fetch all cats
 @app.get("/cats/", response_model=list[Cat])
@@ -447,15 +453,18 @@ def get_all_weights(count: Optional[int] = None):
 # Insert a new weight
 @app.post("/weights/", response_model=Weight)
 def create_weight(weight: Weight):
-    cnx = get_mysql_connection()
-    cursor = cnx.cursor()
-    query = "INSERT INTO weight (weight, cat_ID) VALUES (%s, %s)"
-    cursor.execute(query, (weight.weight, weight.cat_ID))
-    cnx.commit()
-    weight.ID_weight = cursor.lastrowid
-    cursor.close()
-    cnx.close()
-    return weight
+    try:
+        cnx = get_mysql_connection()
+        cursor = cnx.cursor()
+        query = "INSERT INTO weight (weight, cat_ID) VALUES (%s, %s)"
+        cursor.execute(query, (weight.weight, weight.cat_ID))
+        cnx.commit()
+        weight.ID_weight = cursor.lastrowid
+        cursor.close()
+        cnx.close()
+        return weight
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Reroute to the docs
 @app.get("/")
