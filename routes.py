@@ -4,7 +4,6 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from database import get_mysql_connection
 from typing import Optional
-import asyncio
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -173,7 +172,7 @@ def get_all_poops(count: Optional[int] = None):
 
 # Insert a new poop
 @app.post("/poops/", response_model=Poop)
-def create_poop(poop: Poop):
+async def create_poop(poop: Poop):
     cnx = get_mysql_connection()
     cursor = cnx.cursor()
 
@@ -196,8 +195,8 @@ def create_poop(poop: Poop):
     poop.ID_poop = cursor.lastrowid
     cursor.close()
     cnx.close()
-    
-    asyncio.create_task(notify_clients("Hallo Rico"))
+
+    notify_clients("Hallo Rico")
     return poop
 
 # Fetch all cats
