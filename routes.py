@@ -4,6 +4,7 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from database import get_mysql_connection
 from typing import Optional
+import asyncio
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,6 +39,10 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.send_text(message)
 manager = ConnectionManager()
+
+# Define an async function to notify clients
+async def notify_clients(message: str):
+    await manager.broadcast(message)
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
@@ -191,7 +196,8 @@ def create_poop(poop: Poop):
     poop.ID_poop = cursor.lastrowid
     cursor.close()
     cnx.close()
-    manager.broadcast("Hallo Rico")
+    
+    asyncio.create_task(notify_clients("Hallo Rico"))
     return poop
 
 # Fetch all cats
