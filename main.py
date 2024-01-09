@@ -3,6 +3,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
+from websocket_manager import router as websocket_router
+
 app = FastAPI()
 
 ##############################
@@ -28,6 +30,7 @@ app.include_router(foods.router)
 app.include_router(poops.router)
 app.include_router(telephone_numbers.router)
 app.include_router(weights.router)
+app.include_router(websocket_router)
 
 # Reroute to the docs
 @app.get("/")

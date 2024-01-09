@@ -1,7 +1,9 @@
-from fastapi import WebSocket, WebSocketDisconnect
-
 from typing import List
-from fastapi import WebSocket, WebSocketDisconnect
+
+from fastapi import WebSocket, WebSocketDisconnect, APIRouter
+from fastapi.routing import APIWebSocketRoute
+
+router = APIRouter()
 
 class ConnectionManager:
     def __init__(self):
@@ -37,3 +39,6 @@ async def handle_websocket(websocket: WebSocket, client_id: int):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"Client #{client_id} left the chat")
+
+websocket_route = APIWebSocketRoute("/ws/{client_id}", handle_websocket)
+router.routes.append(websocket_route)
