@@ -198,13 +198,15 @@ async def create_poop(poop: Poop):
     # Fetch the timestamp of the inserted poop and create Poop object
     cursor.execute("SELECT timestamp FROM poop WHERE ID_poop = LAST_INSERT_ID()")
     poop_timestamp = cursor.fetchone()[0]
-    poop.timestamp = poop_timestamp.isoformat() if poop_timestamp else None
+    formatted_timestamp = poop_timestamp.strftime("%Y-%m-%d %H:%M:%S") # format timestamp for WebSocket
+    poop.timestamp = poop_timestamp
     poop.ID_poop = cursor.lastrowid
     cursor.close()
     cnx.close()
 
     # Notify WebSocket clients with the JSON data
     poop_dict = dict(poop)
+    poop_dict["timestamp"] = formatted_timestamp
     poop_json = json.dumps(poop_dict)
     await notify_clients(poop_json)
 
