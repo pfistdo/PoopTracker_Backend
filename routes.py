@@ -282,7 +282,7 @@ def get_all_air_qualities(count: Optional[int] = None):
 
 # Insert new air quality
 @app.post("/air_qualities/", response_model=Air_Quality)
-def insert_air_quality(air_quality: Air_Quality):
+async def insert_air_quality(air_quality: Air_Quality):
     try:
         cnx = get_mysql_connection()
         cursor = cnx.cursor()
@@ -293,8 +293,22 @@ def insert_air_quality(air_quality: Air_Quality):
         values = (air_quality.lpg, air_quality.co, air_quality.smoke)
         cursor.execute(query, values)
         cnx.commit()
+
+        cursor.execute("SELECT timestamp FROM air_quality WHERE ID_air_quality = LAST_INSERT_ID()")
+        air_quality_timestamp = cursor.fetchone()[0]
+        formatted_timestamp = air_quality_timestamp.strftime("%Y-%m-%dT%H:%M:%S") # format timestamp for WebSocket
+        air_quality.timestamp = air_quality_timestamp
+        air_quality.ID_air_quality = cursor.lastrowid
         cursor.close()
         cnx.close()
+
+        # Notify WebSocket clients with the JSON data
+        air_quality_dict = dict(air_quality)
+        air_quality_dict["timestamp"] = formatted_timestamp
+        air_quality_dict["type"] = "airQuality" # to identify payload in frontend
+        air_quality_json = json.dumps(air_quality_dict)
+        await notify_clients(air_quality_json)
+        
         return air_quality
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
