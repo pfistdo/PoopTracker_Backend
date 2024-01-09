@@ -197,7 +197,11 @@ async def create_poop(poop: Poop):
     cursor.close()
     cnx.close()
 
-    await notify_clients(json.dumps(poop))
+    # Notify WebSocket clients with the JSON data
+    poop_dict = dict(poop)
+    poop_json = json.dumps(poop_dict)
+    await notify_clients(poop_json)
+    
     return poop
 
 # Fetch all cats
