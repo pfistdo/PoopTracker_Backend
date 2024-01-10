@@ -30,6 +30,11 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+payload = ""
+def set_payload(new_payload):
+    global payload
+    payload = new_payload
+
 async def notify_clients(message: str):
     print(f"Trying to send data via websocket: {message}")
     await manager.broadcast(message)
@@ -38,9 +43,14 @@ async def handle_websocket(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
     try:
         while True:
+            print(payload)
             data = await websocket.receive_text()
             await manager.send_personal_message(f"You wrote: {data}", websocket)
             await manager.broadcast(f"Client #{client_id} says: {data}")
+            if payload != "":
+                print(f"Trying to send data via websocket: {payload}")
+                await manager.broadcast(payload)
+                payload = ""
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"Client #{client_id} left the chat")
