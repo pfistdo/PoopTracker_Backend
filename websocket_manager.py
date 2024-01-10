@@ -36,7 +36,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
             data = await websocket.receive_text()
             message_payload = {"type": "message", "message": data, "client_id": client_id}
             message_payload_json = json.dumps(message_payload)
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
             await manager.broadcast(message_payload_json)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
