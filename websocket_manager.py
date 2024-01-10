@@ -40,6 +40,8 @@ async def notify_clients(message: str):
     await manager.broadcast(message)
 
 async def handle_websocket(websocket: WebSocket, client_id: int):
+    global payload
+    
     await manager.connect(websocket)
     try:
         while True:
