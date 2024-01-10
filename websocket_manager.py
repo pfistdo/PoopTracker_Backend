@@ -23,7 +23,10 @@ class ConnectionManager:
 
     async def broadcast(self, message):
         for connection in self.active_connections:
-            await connection.send_text(message)
+            try:
+                await connection.send_text(message)
+            except Exception as e:
+                print(f"Error broadcasting to a connection: {e}")
 
 manager = ConnectionManager()
 
