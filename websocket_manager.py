@@ -48,7 +48,7 @@ async def handle_websocket(websocket: WebSocket, client_id: int):
     try:
         while True:
             await asyncio.sleep(1)
-            print(payload)
+            # print(payload)
             # data = await websocket.receive_text()
             # await manager.send_personal_message(f"You wrote: {data}", websocket)
             # await manager.broadcast(f"Client #{client_id} says: {data}")
