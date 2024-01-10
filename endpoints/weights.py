@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 
 from typing import Optional
@@ -51,7 +51,7 @@ def create_weight(weight: Weight):
 @router.post("/liveWeights/", response_model=Weight)
 async def broadcast_weight(weight: Weight):
     weight_dict = dict(weight)
-    # weight_dict["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    weight_dict["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     weight_dict["type"] = "liveWeight" # to identify payload in frontend
     weight_json = json.dumps(weight_dict)
     await notify_clients(weight_json)

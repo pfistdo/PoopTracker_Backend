@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 
 from typing import Optional
@@ -67,7 +68,7 @@ async def insert_air_quality(air_quality: Air_Quality):
 @router.post("/liveair_qualities/", response_model=Air_Quality)
 async def broadcast_weight(air_quality: Air_Quality):
     air_quality_dict = dict(air_quality)
-    # weight_dict["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    air_quality_dict["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     air_quality_dict["type"] = "liveGasValue" # to identify payload in frontend
     weight_json = json.dumps(air_quality_dict)
     await notify_clients(weight_json)
