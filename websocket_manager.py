@@ -2,13 +2,12 @@ from typing import List
 
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.routing import APIWebSocketRoute
-import asyncio
 
 router = APIRouter()
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -18,47 +17,28 @@ class ConnectionManager:
         self.active_connections.remove(websocket)
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
-        if websocket not in self.active_connections:
-            await self.connect(websocket)  # Connect if not already connected
         await websocket.send_text(message)
 
-    async def broadcast(self, message):
+    async def broadcast(self, message: str):
+        print(f"Trying to send data via WebSocket: {message}")
         for connection in self.active_connections:
-            try:
-                await self.send_personal_message(message, connection)
-            except Exception as e:
-                print(f"Error broadcasting to a connection: {e}")
+            await connection.send_text(message)
+
 
 manager = ConnectionManager()
 
-payload = ""
-def set_payload(new_payload):
-    global payload
 
-    payload = new_payload
-
-async def notify_clients(message: str):
-    print(f"Trying to send data via websocket: {message}")
-    await manager.broadcast(message)
-
-async def handle_websocket(websocket: WebSocket, client_id: int):
-    global payload
-
+@router.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
     try:
         while True:
-            await asyncio.sleep(1)
-            # print(payload)
-            # data = await websocket.receive_text()
-            # await manager.send_personal_message(f"You wrote: {data}", websocket)
-            # await manager.broadcast(f"Client #{client_id} says: {data}")
-            if payload != "":
-                print(f"Trying to send data via websocket: {payload}")
-                await manager.broadcast(payload)
-                payload = "" # Reset payload after sending
+            data = await websocket.receive_text()
+            await manager.send_personal_message(f"You wrote: {data}", websocket)
+            await manager.broadcast(f"Client #{client_id} says: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        # await manager.broadcast(f"Client #{client_id} left the chat")
+        await manager.broadcast(f"Client #{client_id} left the chat")
 
-websocket_route = APIWebSocketRoute("/ws/{client_id}", handle_websocket)
+websocket_route = APIWebSocketRoute("/ws/{client_id}", websocket_endpoint)
 router.routes.append(websocket_route)

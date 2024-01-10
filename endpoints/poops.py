@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 
 from database.db_connector import get_mysql_connection
-from websocket_manager import notify_clients
+from websocket_manager import manager
 from models.poop import Poop
 
 router = APIRouter()
@@ -69,7 +69,7 @@ async def create_poop(poop: Poop):
         poop_dict["timestamp"] = formatted_timestamp
         poop_dict["type"] = "poop" # to identify payload in frontend
         poop_json = json.dumps(poop_dict)
-        await notify_clients(poop_json)
+        await manager.broadcast(poop_json) # send payload via WebSocket
 
         return poop
     except Exception as e:

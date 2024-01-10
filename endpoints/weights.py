@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 
 from database.db_connector import get_mysql_connection
-from websocket_manager import notify_clients, set_payload
+from websocket_manager import manager 
 from models.weight import Weight
 
 router = APIRouter()
@@ -54,6 +54,6 @@ async def broadcast_weight(weight: Weight):
     weight_dict["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     weight_dict["type"] = "liveWeight" # to identify payload in frontend
     weight_json = json.dumps(weight_dict)
-    set_payload(weight_json)
-    # await notify_clients(weight_json)
+    await manager.broadcast(weight_json) # send payload via WebSocket
+    
     return weight

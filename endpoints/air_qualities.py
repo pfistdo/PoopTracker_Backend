@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 
 from database.db_connector import get_mysql_connection
-from websocket_manager import notify_clients
+from websocket_manager import manager
 from models.air_quality import Air_Quality
 
 router = APIRouter()
@@ -58,7 +58,7 @@ async def insert_air_quality(air_quality: Air_Quality):
         air_quality_dict["timestamp"] = formatted_timestamp
         air_quality_dict["type"] = "airQuality" # to identify payload in frontend
         air_quality_json = json.dumps(air_quality_dict)
-        await notify_clients(air_quality_json)
+        await manager.broadcast(air_quality_json) # send payload via WebSocket
 
         return air_quality
     except Exception as e:
