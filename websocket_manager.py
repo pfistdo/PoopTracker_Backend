@@ -24,7 +24,7 @@ class ConnectionManager:
     async def broadcast(self, message):
         for connection in self.active_connections:
             try:
-                await connection.send_text(message)
+                await self.send_personal_message(message, connection)
             except Exception as e:
                 print(f"Error broadcasting to a connection: {e}")
 
