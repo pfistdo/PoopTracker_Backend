@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.routing import APIWebSocketRoute
+import asyncio
 
 router = APIRouter()
 
@@ -33,6 +34,7 @@ manager = ConnectionManager()
 payload = ""
 def set_payload(new_payload):
     global payload
+
     payload = new_payload
 
 async def notify_clients(message: str):
@@ -41,21 +43,21 @@ async def notify_clients(message: str):
 
 async def handle_websocket(websocket: WebSocket, client_id: int):
     global payload
-    
+
     await manager.connect(websocket)
     try:
         while True:
             print(payload)
-            data = await websocket.receive_text()
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{client_id} says: {data}")
+            # data = await websocket.receive_text()
+            # await manager.send_personal_message(f"You wrote: {data}", websocket)
+            # await manager.broadcast(f"Client #{client_id} says: {data}")
             if payload != "":
                 print(f"Trying to send data via websocket: {payload}")
                 await manager.broadcast(payload)
-                payload = ""
+                payload = "" # Reset payload after sending
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{client_id} left the chat")
+        # await manager.broadcast(f"Client #{client_id} left the chat")
 
 websocket_route = APIWebSocketRoute("/ws/{client_id}", handle_websocket)
 router.routes.append(websocket_route)
