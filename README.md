@@ -58,7 +58,7 @@ The project can be installed locally by completing the following checklist.
 
 ## API Reference
 
-The backend server provides a Swagger API documentation that can be found on http://localhost:8000/docs. 
+The backend server provides a Swagger API documentation that can be found on https://poop-tracker-48b06530794b.herokuapp.com/docs or locally on http://localhost:8000/docs. 
 
 ## Authors
 
